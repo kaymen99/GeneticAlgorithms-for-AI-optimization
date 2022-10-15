@@ -37,32 +37,29 @@ class GASelector:
         self.intialize_ga()
     
     def intialize_ga(self):
-        # define a single objective, maximizing fitness strategy:
+        # define fitness strategy class
         creator.create("FitnessMax", base.Fitness, weights=(1.0,))
 
-        # create the Individual class based on list:
+        # create the population individuals in the form of a list
         creator.create("Individual", list, fitness=creator.FitnessMax)
 
-        # create an operator that randomly returns 0 or 1:
         self.toolbox.register("zeroOrOne", random.randint, 0, 1)
 
-        # create the individual operator to fill up an Individual instance:
         self.toolbox.register("individualCreator", tools.initRepeat, creator.Individual, self.toolbox.zeroOrOne, len(self.model))
 
-        # create the population operator to generate a list of individuals:
         self.toolbox.register("populationCreator", tools.initRepeat, list, self.toolbox.individualCreator)
-
+        
+        # set fitness function
         self.toolbox.register("evaluate", self.fitness)
 
         # genetic operators:
-        # Tournament selection with tournament size of 2:
+        # Tournament selection with tournament size of 2
         self.toolbox.register("select", tools.selTournament, tournsize=2)
 
-        # Single-point crossover:
+        # Single-point crossover
         self.toolbox.register("mate", tools.cxTwoPoint)
 
         # Flip-bit mutation:
-        # indpb: Independent probability for each attribute to be flipped
         self.toolbox.register("mutate", tools.mutFlipBit, indpb=1.0/len(self.model))
 
     # fitness calculation
@@ -96,12 +93,12 @@ class GASelector:
         # create initial population
         population = self.toolbox.populationCreator(n=self.POPULATION_SIZE)
 
-        # statistics object
+        # save population statistics
         stats = tools.Statistics(lambda ind: ind.fitness.values)
         stats.register("max", numpy.max)
         stats.register("avg", numpy.mean)
 
-        # define the hall-of-fame object
+        # define the hall-of-fame
         hof = tools.HallOfFame(self.HALL_OF_FAME_SIZE)
 
         # Genetic Algorithm flow with hof 
